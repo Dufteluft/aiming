@@ -20,16 +20,29 @@ local currentSettings = { targetSize = 1.0 }
 local score = 0
 local timeLeft = 60
 local targetObjects = {}
-local isMenuOpen = false
 local lastPlayerWeapon = nil
 
 -- =============================================================== --
--- UI FUNCTIONS
+-- UI CONTROL FUNCTIONS (NEW & REFACTORED)
 -- =============================================================== --
-function SetUIVisible(visible)
-    isMenuOpen = visible
-    SetNuiFocus(visible, visible)
-    SendNUIMessage({ action = (visible and "showMenu") or "hideAll" })
+function ShowMenu()
+    SendNUIMessage({ action = "showMenu" })
+    SetNuiFocus(true, true)
+end
+
+function ShowHUD()
+    SendNUIMessage({ action = "showHud" })
+    SetNuiFocus(false, false)
+end
+
+function ShowResults(finalScore)
+    SendNUIMessage({ action = "showResults", score = finalScore })
+    SetNuiFocus(true, true)
+end
+
+function HideAllUI()
+    SendNUIMessage({ action = "hideAll" })
+    SetNuiFocus(false, false)
 end
 
 function UpdateHud()
@@ -39,8 +52,6 @@ end
 -- =============================================================== --
 -- GAME LOGIC
 -- =============================================================== --
-
--- Gives a weapon and saves the old one
 function GiveTrainingWeapon()
     local playerPed = PlayerPedId()
     lastPlayerWeapon = GetSelectedPedWeapon(playerPed)
@@ -48,7 +59,6 @@ function GiveTrainingWeapon()
     SetCurrentPedWeapon(playerPed, Config.Weapon, true)
 end
 
--- Restores the old weapon
 function RestorePlayerWeapon()
     local playerPed = PlayerPedId()
     RemoveWeaponFromPed(playerPed, Config.Weapon)
@@ -58,7 +68,6 @@ function RestorePlayerWeapon()
     lastPlayerWeapon = nil
 end
 
--- Spawns a single target for Gridshot
 function spawnGridTarget()
     RequestModel(Config.TargetModel)
     while not HasModelLoaded(Config.TargetModel) do Wait(50) end
@@ -70,7 +79,6 @@ function spawnGridTarget()
     table.insert(targetObjects, newTarget)
 end
 
--- Spawns the moving target for Tracking
 function spawnTrackingTarget()
     RequestModel(Config.TargetModel)
     while not HasModelLoaded(Config.TargetModel) do Wait(50) end
@@ -80,7 +88,6 @@ function spawnTrackingTarget()
     table.insert(targetObjects, target)
 end
 
--- General function to start a training session
 function StartTraining(mode)
     currentMode = mode
     trainingActive = true
@@ -93,7 +100,7 @@ function StartTraining(mode)
     GiveTrainingWeapon()
 
     PlaySoundFrontend(-1, "SELECT", "HUD_FRONTEND_DEFAULT_SOUNDSET", true)
-    SendNUIMessage({ action = "showHud" })
+    ShowHUD() -- Use new explicit function
     UpdateHud()
 
     if mode == 'gridshot' then
@@ -105,7 +112,6 @@ function StartTraining(mode)
     end
 end
 
--- General function to stop a training session
 function StopTraining()
     if not trainingActive then return end
     trainingActive = false
@@ -117,8 +123,7 @@ function StopTraining()
     end
 
     RestorePlayerWeapon()
-    SendNUIMessage({ action = "showResults", score = score })
-    SetNuiFocus(true, true) -- Show cursor for results screen
+    ShowResults(score) -- Use new explicit function
 
     for _, obj in ipairs(targetObjects) do
         if DoesEntityExist(obj) then DeleteObject(obj) end
@@ -135,7 +140,7 @@ RegisterNetEvent('aimlabs:receiveHighscores', function(highscores)
 end)
 
 RegisterNUICallback('startGame', function(data, cb)
-    SetUIVisible(false)
+    HideAllUI()
     if data.settings and data.settings.targetSize then
         currentSettings.targetSize = data.settings.targetSize
     else
@@ -146,13 +151,12 @@ RegisterNUICallback('startGame', function(data, cb)
 end)
 
 RegisterNUICallback('closeMenu', function(data, cb)
-    SetUIVisible(false)
+    HideAllUI()
     cb('ok')
 end)
 
 RegisterNUICallback('closeResults', function(data, cb)
-    -- Return to the main menu from the results screen
-    SetUIVisible(true)
+    ShowMenu()
     TriggerServerEvent('aimlabs:getHighscores')
     cb('ok')
 end)
@@ -194,27 +198,24 @@ CreateThread(function()
     local trackingDirection = 1
 
     while true do
-        Wait(0) -- Run every frame
+        Wait(0)
         local playerPed = PlayerPedId()
         local playerCoords = GetEntityCoords(playerPed)
 
         if not trainingActive then
-            -- Handle interaction point when not in training
             local distance = #(playerCoords - Config.Entrance)
             if distance < 10.0 then
                 DrawMarker(1, Config.Entrance.x, Config.Entrance.y, Config.Entrance.z - 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 3.0, 3.0, 1.0, 0, 150, 255, 100, false, true, 2, nil, nil, false)
                 if distance < 3.0 then
                     Draw3DText(Config.Entrance.x, Config.Entrance.y, Config.Entrance.z, 'Drücke [E] um das Aim Lab zu starten')
                     if IsControlJustReleased(0, 38) then -- Key E
-                        SetUIVisible(true)
+                        ShowMenu()
                         TriggerServerEvent('aimlabs:getHighscores')
                     end
                 end
             end
         else
-            -- --- THIS IS THE CORE GAMEPLAY LOOP ---
-
-            -- 1. Timer Logic (runs once per second)
+            -- --- CORE GAMEPLAY LOOP ---
             if GetGameTimer() - lastGameTime >= 1000 then
                 timeLeft = timeLeft - 1
                 UpdateHud()
@@ -224,7 +225,6 @@ CreateThread(function()
                 end
             end
 
-            -- 2. Game Mode Logic (runs every frame)
             if currentMode == 'gridshot' then
                 for i = #targetObjects, 1, -1 do
                     local obj = targetObjects[i]
@@ -240,14 +240,12 @@ CreateThread(function()
             elseif currentMode == 'tracking' then
                 local target = targetObjects[1]
                 if DoesEntityExist(target) then
-                    -- Move the target
                     local currentPos = GetEntityCoords(target)
-                    local newX = currentPos.x + (Config.TrackingMoveSpeed * trackingDirection * 0.02) -- Frame-rate independent movement
+                    local newX = currentPos.x + (Config.TrackingMoveSpeed * trackingDirection * 0.02)
                     if newX > Config.TrainingAreaCenter.x + 8.0 then trackingDirection = -1 end
                     if newX < Config.TrainingAreaCenter.x - 8.0 then trackingDirection = 1 end
                     SetEntityCoords(target, newX, currentPos.y, currentPos.z, false, false, false, true)
 
-                    -- Check for score
                     if IsPlayerFreeAiming(PlayerId()) then
                         local _, hit, _, _, hitEntity = GetGameplayCamRot(2)
                         if hit and hitEntity == target then

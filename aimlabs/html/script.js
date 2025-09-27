@@ -12,20 +12,19 @@ document.addEventListener('DOMContentLoaded', function () {
     const targetSizeSlider = document.getElementById('target-size');
     const targetSizeValue = document.getElementById('target-size-value');
 
-    // NUI Message Listener - The single source of truth for UI state
+    // NUI Message Listener - This is now purely passive. It only does what Lua tells it to.
     window.addEventListener('message', function (event) {
         const data = event.data;
         if (!data.action) return;
 
-        // Default state: hide all panels
-        menuContainer.style.display = 'none';
-        resultsContainer.style.display = 'none';
+        // Hide everything by default unless showing a specific panel
+        mainUiContainer.style.display = 'none';
         hudContainer.style.display = 'none';
-        mainUiContainer.style.display = 'none'; // Hide main wrapper by default
 
         switch (data.action) {
             case 'showMenu':
                 mainUiContainer.style.display = 'flex';
+                resultsContainer.style.display = 'none';
                 menuContainer.style.display = 'block';
                 break;
             case 'showHud':
@@ -33,11 +32,12 @@ document.addEventListener('DOMContentLoaded', function () {
                 break;
             case 'showResults':
                 mainUiContainer.style.display = 'flex';
+                menuContainer.style.display = 'none';
                 finalScoreElement.textContent = data.score;
                 resultsContainer.style.display = 'block';
                 break;
             case 'hideAll':
-                // All panels are already hidden by default
+                // All containers are already hidden by default at the top of the listener
                 break;
             case 'updateHud':
                 if (data.score !== undefined) scoreElement.textContent = data.score;
@@ -81,6 +81,7 @@ document.addEventListener('DOMContentLoaded', function () {
         button.addEventListener('click', () => {
             const mode = button.getAttribute('data-mode');
             const settings = { targetSize: parseFloat(targetSizeSlider.value) };
+            // ONLY send a message to Lua. Do not change UI state here.
             fetch(`https://${GetParentResourceName()}/startGame`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json; charset=UTF-8' },
@@ -90,6 +91,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     document.getElementById('close-results').addEventListener('click', () => {
+        // ONLY send a message to Lua.
         fetch(`https://${GetParentResourceName()}/closeResults`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json; charset=UTF-8' },
@@ -100,13 +102,12 @@ document.addEventListener('DOMContentLoaded', function () {
     // Helper to close UI with Escape key
     document.onkeyup = function (data) {
         if (data.key === 'Escape') {
-            if (mainUiContainer.style.display === 'flex') {
-                fetch(`https://${GetParentResourceName()}/closeMenu`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json; charset=UTF-8' },
-                    body: JSON.stringify({})
-                }).then(resp => resp.json()).catch(e => {});
-            }
+            // ONLY send a message to Lua.
+            fetch(`https://${GetParentResourceName()}/closeMenu`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json; charset=UTF-8' },
+                body: JSON.stringify({})
+            }).then(resp => resp.json()).catch(e => {});
         }
     };
 });
