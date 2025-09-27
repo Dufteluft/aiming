@@ -1,17 +1,14 @@
 document.addEventListener('DOMContentLoaded', function () {
-    // Containers
+    // Main Containers
+    const mainUiContainer = document.getElementById('main-ui-container');
     const menuContainer = document.getElementById('menu-container');
     const hudContainer = document.getElementById('hud-container');
     const resultsContainer = document.getElementById('results-container');
 
-    // HUD elements
+    // UI Elements
     const scoreElement = document.getElementById('score');
     const timerElement = document.getElementById('timer');
-
-    // Results elements
     const finalScoreElement = document.getElementById('final-score');
-
-    // Settings
     const targetSizeSlider = document.getElementById('target-size');
     const targetSizeValue = document.getElementById('target-size-value');
 
@@ -20,27 +17,27 @@ document.addEventListener('DOMContentLoaded', function () {
         const data = event.data;
         if (!data.action) return;
 
+        // Default state: hide all panels
+        menuContainer.style.display = 'none';
+        resultsContainer.style.display = 'none';
+        hudContainer.style.display = 'none';
+        mainUiContainer.style.display = 'none'; // Hide main wrapper by default
+
         switch (data.action) {
             case 'showMenu':
-                resultsContainer.style.display = 'none';
-                hudContainer.style.display = 'none';
+                mainUiContainer.style.display = 'flex';
                 menuContainer.style.display = 'block';
                 break;
             case 'showHud':
-                menuContainer.style.display = 'none';
-                resultsContainer.style.display = 'none';
                 hudContainer.style.display = 'flex';
                 break;
             case 'showResults':
-                menuContainer.style.display = 'none';
-                hudContainer.style.display = 'none';
+                mainUiContainer.style.display = 'flex';
                 finalScoreElement.textContent = data.score;
                 resultsContainer.style.display = 'block';
                 break;
             case 'hideAll':
-                menuContainer.style.display = 'none';
-                hudContainer.style.display = 'none';
-                resultsContainer.style.display = 'none';
+                // All panels are already hidden by default
                 break;
             case 'updateHud':
                 if (data.score !== undefined) scoreElement.textContent = data.score;
@@ -67,7 +64,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 container.appendChild(scoreDiv);
             });
         } else {
-            container.innerHTML = '<p>No scores yet.</p>';
+            container.innerHTML = '<p>Noch keine Scores.</p>';
         }
     }
 
@@ -103,7 +100,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Helper to close UI with Escape key
     document.onkeyup = function (data) {
         if (data.key === 'Escape') {
-            if (menuContainer.style.display === 'block' || resultsContainer.style.display === 'block') {
+            if (mainUiContainer.style.display === 'flex') {
                 fetch(`https://${GetParentResourceName()}/closeMenu`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json; charset=UTF-8' },

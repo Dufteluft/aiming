@@ -15,15 +15,17 @@ function LoadHighscores()
         local success, data = pcall(json.decode, fileContent)
         if success and type(data) == "table" then
             highscores = data
-            -- Ensure all modes have a table
+            -- Ensure all modes have a table to prevent errors
             if not highscores.gridshot then highscores.gridshot = {} end
             if not highscores.tracking then highscores.tracking = {} end
             print("Aim Labs: Highscores loaded successfully.")
         else
-            print("Aim Labs: Failed to parse highscores.json. Starting fresh.")
+            print("Aim Labs: Failed to parse highscores.json. Creating a new one.")
+            SaveHighscores() -- Save the default empty table to create the file
         end
     else
         print("Aim Labs: highscores.json not found. A new one will be created.")
+        SaveHighscores() -- Save the default empty table to create the file
     end
 end
 

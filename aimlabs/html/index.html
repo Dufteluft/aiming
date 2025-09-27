@@ -1,64 +1,73 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aim Labs</title>
     <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <!-- Main menu / start screen -->
-    <div id="menu-container" class="center-container" style="display: none;">
-        <h1>Aim Labs</h1>
-        <p>Choose a mode to start.</p>
-        <div class="mode-selection">
-            <button class="start-game-btn" data-mode="gridshot">Start Gridshot</button>
-            <button class="start-game-btn" data-mode="tracking">Start Tracking</button>
-        </div>
-
-        <div class="settings-section">
-            <h4>Settings</h4>
-            <div class="setting">
-                <label for="target-size">Target Size</label>
-                <input type="range" id="target-size" min="0.5" max="2.0" value="1.0" step="0.1">
-                <span id="target-size-value">1.0x</span>
-            </div>
-        </div>
-
-        <div id="highscore-section">
-            <h2>Highscores</h2>
-            <div id="highscore-gridshot">
-                <h3>Gridshot</h3>
-                <div class="highscore-list">
-                    <!-- Gridshot scores -->
-                </div>
-            </div>
-            <div id="highscore-tracking">
-                <h3>Tracking</h3>
-                <div class="highscore-list">
-                    <!-- Tracking scores -->
-                </div>
-            </div>
-        </div>
-    </div>
-
     <!-- In-game HUD -->
-    <div id="hud-container" style="display: none;">
+    <div id="hud-container">
         <div class="hud-item">
-            <span>Score</span>
+            <span>SCORE</span>
             <p id="score">0</p>
         </div>
         <div class="hud-item">
-            <span>Time</span>
+            <span>TIME</span>
             <p id="timer">60</p>
         </div>
     </div>
 
-    <!-- Results Screen -->
-    <div id="results-container" style="display: none;">
-        <h1>Training Complete</h1>
-        <p>Final Score: <span id="final-score">0</span></p>
-        <button id="close-results">Close</button>
+    <!-- Main UI Container -->
+    <div id="main-ui-container">
+        <!-- Main Menu -->
+        <div id="menu-container" class="ui-panel">
+            <div class="panel-header">
+                <h1>AIM LABS</h1>
+            </div>
+            <div class="panel-content">
+                <h2>Wähle einen Modus</h2>
+                <div class="mode-selection">
+                    <button class="start-game-btn" data-mode="gridshot">Gridshot</button>
+                    <button class="start-game-btn" data-mode="tracking">Tracking</button>
+                </div>
+
+                <div class="settings-section">
+                    <h3>Einstellungen</h3>
+                    <div class="setting">
+                        <label for="target-size">Zielgröße</label>
+                        <input type="range" id="target-size" min="0.5" max="2.0" value="1.0" step="0.1">
+                        <span id="target-size-value">1.0x</span>
+                    </div>
+                </div>
+
+                <div id="highscore-section">
+                    <h3>Highscores</h3>
+                    <div class="highscore-box" id="highscore-gridshot">
+                        <h4>Gridshot</h4>
+                        <div class="highscore-list"></div>
+                    </div>
+                    <div class="highscore-box" id="highscore-tracking">
+                        <h4>Tracking</h4>
+                        <div class="highscore-list"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Screen -->
+        <div id="results-container" class="ui-panel">
+             <div class="panel-header">
+                <h1>Ergebnis</h1>
+            </div>
+            <div class="panel-content results-content">
+                <p>Finaler Score:</p>
+                <h2 id="final-score">0</h2>
+                <button id="close-results">Schließen</button>
+            </div>
+        </div>
     </div>
 
     <script src="script.js"></script>
