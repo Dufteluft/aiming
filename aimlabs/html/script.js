@@ -84,34 +84,31 @@ document.addEventListener('DOMContentLoaded', function () {
         button.addEventListener('click', () => {
             const mode = button.getAttribute('data-mode');
             const settings = { targetSize: parseFloat(targetSizeSlider.value) };
-            // ONLY send message, don't change UI state here
             fetch(`https://${GetParentResourceName()}/startGame`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json; charset=UTF-8' },
                 body: JSON.stringify({ mode: mode, settings: settings })
-            });
+            }).then(resp => resp.json()).catch(e => {});
         });
     });
 
     document.getElementById('close-results').addEventListener('click', () => {
-        // ONLY send message
         fetch(`https://${GetParentResourceName()}/closeResults`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json; charset=UTF-8' },
             body: JSON.stringify({})
-        });
+        }).then(resp => resp.json()).catch(e => {});
     });
 
     // Helper to close UI with Escape key
     document.onkeyup = function (data) {
         if (data.key === 'Escape') {
-            // Only send the event if a menu is visible, let Lua handle the state change
             if (menuContainer.style.display === 'block' || resultsContainer.style.display === 'block') {
                 fetch(`https://${GetParentResourceName()}/closeMenu`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json; charset=UTF-8' },
                     body: JSON.stringify({})
-                });
+                }).then(resp => resp.json()).catch(e => {});
             }
         }
     };
