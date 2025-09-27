@@ -1,0 +1,151 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+
+body {
+    font-family: 'Roboto', sans-serif;
+    color: white;
+    background-color: transparent;
+    overflow: hidden;
+    height: 100vh;
+    width: 100vw;
+}
+
+/* Base style for all centered containers */
+.center-container {
+    display: none; /* Hidden by default */
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(10, 20, 30, 0.85);
+    padding: 30px;
+    border-radius: 15px;
+    text-align: center;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+}
+
+#menu-container {
+    /* Inherits from .center-container */
+}
+
+#results-container {
+    /* Inherits from .center-container */
+}
+
+button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+.mode-selection {
+    margin-bottom: 20px;
+}
+
+.settings-section {
+    margin-bottom: 20px;
+    background-color: rgba(0, 0, 0, 0.2);
+    padding: 15px;
+    border-radius: 8px;
+}
+
+.settings-section h4 {
+    margin: 0 0 10px 0;
+    color: #00aaff;
+    text-align: center;
+}
+
+.setting {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.setting label {
+    font-weight: bold;
+}
+
+#highscore-section {
+    margin-top: 25px;
+    text-align: left;
+}
+
+#highscore-section h2 {
+    text-align: center;
+    margin-bottom: 15px;
+    color: #00aaff;
+}
+
+#highscore-section h3 {
+    margin-top: 10px;
+    margin-bottom: 5px;
+    color: #eee;
+    border-bottom: 1px solid #00aaff;
+    padding-bottom: 3px;
+}
+
+.highscore-list {
+    background-color: rgba(0, 0, 0, 0.3);
+    border-radius: 5px;
+    padding: 10px;
+    max-height: 150px; /* Adjusted height for multiple lists */
+    overflow-y: auto;
+}
+
+.highscore-entry {
+    display: flex;
+    justify-content: space-between;
+    padding: 5px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.highscore-entry:last-child {
+    border-bottom: none;
+}
+
+.highscore-name {
+    font-weight: bold;
+}
+
+.highscore-score {
+    color: #f0ad4e;
+}
+
+
+/* In-game HUD */
+#hud-container {
+    display: none; /* Hidden by default */
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 20px;
+    background-color: rgba(10, 20, 30, 0.7);
+    padding: 10px 20px;
+    border-radius: 10px;
+}
+
+.hud-item {
+    text-align: center;
+}
+
+.hud-item span {
+    font-size: 14px;
+    color: #ccc;
+}
+
+.hud-item p {
+    font-size: 24px;
+    font-weight: bold;
+    margin: 5px 0 0 0;
+}
